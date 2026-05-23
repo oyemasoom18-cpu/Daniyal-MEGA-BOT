@@ -12,3 +12,5 @@
 {"userId":"61584495021441","threadId":"1609631786783461","nickname":"😀❤️","lockedAt":1779218574845,"_id":"yBuslgwlrCiCMTgt"}
 {"$$indexCreated":{"fieldName":"userId","unique":false,"sparse":false}}
 {"$$indexCreated":{"fieldName":"threadId","unique":false,"sparse":false}}
+{"$$indexCreated":{"fieldName":"userId"}}
+{"$$indexCreated":{"fieldName":"threadId"}}

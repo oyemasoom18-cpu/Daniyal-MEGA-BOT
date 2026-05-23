@@ -30,3 +30,5 @@
 {"id":"100074269952016","name":"Lıɱı Lady-Faıʀy","exp":0,"money":0,"banned":false,"banReason":"","data":{},"_id":"zoWHveldhZUbZnZU"}
 {"$$indexCreated":{"fieldName":"userId","unique":false,"sparse":false}}
 {"$$indexCreated":{"fieldName":"threadId","unique":false,"sparse":false}}
+{"$$indexCreated":{"fieldName":"userId"}}
+{"$$indexCreated":{"fieldName":"threadId"}}
