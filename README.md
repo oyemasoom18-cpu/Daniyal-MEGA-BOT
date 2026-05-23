@@ -9,9 +9,7 @@
 <br>
 
 <!-- DYNAMIC TYPING SVG -->
-<a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=800&size=30&duration=2000&pause=500&color=FF6B00&center=true&vCenter=true&width=800&lines=🌟+WELCOME+TO+RDX+MEGABOT+🌟;🚀+VERSION+2.0+FINAL+RELEASE+🚀;👑+POWERED+BY+SARDAR+RDX+👑;🤖+134%2B+COMMANDS+%7C+AI+POWERED+🤖" alt="Typing SVG" />
-</a>
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=800&size=30&duration=2000&pause=500&color=FF6B00&center=true&vCenter=true&width=800&lines=WELCOME+TO+RDX+MEGABOT;VERSION+2.0+FINAL+RELEASE;POWERED+BY+SARDAR+RDX;134%2B+COMMANDS+%7C+AI+POWERED" alt="RDX MegaBot" />
 
 <br>
 
@@ -415,7 +413,7 @@ jobs:
 <br>
 
 <!-- SIGNATURE TYPING -->
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=18&duration=3000&pause=1000&color=FF6B00&center=true&vCenter=true&repeat=true&width=600&lines=🥇+SARDAR+RDX+—+THE+LEGEND+🥇;👑+OWNER+OF+RDX+MEGABOT+👑;💻+LEADING+THE+MESSENGER+REVOLUTION+💻" alt="Signature" />
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=18&duration=3000&pause=1000&color=FF6B00&center=true&vCenter=true&repeat=true&width=600&lines=SARDAR+RDX+-+THE+LEGEND;OWNER+OF+RDX+MEGABOT;LEADING+THE+MESSENGER+REVOLUTION" alt="Sardar RDX Signature" />
 
 <br>
 
