@@ -23,3 +23,7 @@
 {"$$indexCreated":{"fieldName":"threadId","unique":false,"sparse":false}}
 {"$$indexCreated":{"fieldName":"userId"}}
 {"$$indexCreated":{"fieldName":"threadId"}}
+{"id":"100004807696030","name":"","balance":28,"bank":0,"exp":98,"lastDaily":null,"dailyStreak":0,"lastWork":null,"_id":"esTuOggev9QnmOka"}
+{"id":"100004807696030","name":"","balance":29,"bank":0,"exp":98,"lastDaily":null,"dailyStreak":0,"lastWork":null,"_id":"esTuOggev9QnmOka"}
+{"id":"100004807696030","name":"","balance":29,"bank":0,"exp":100,"lastDaily":null,"dailyStreak":0,"lastWork":null,"_id":"esTuOggev9QnmOka"}
+{"id":"100004807696030","name":"","balance":30,"bank":0,"exp":100,"lastDaily":null,"dailyStreak":0,"lastWork":null,"_id":"esTuOggev9QnmOka"}
