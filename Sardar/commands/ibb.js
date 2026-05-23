@@ -14,152 +14,118 @@ module.exports = {
     const axios = require('axios');
     const { threadID, messageID } = event;
 
-    if (
-      !event.messageReply ||
-      !event.messageReply.attachments ||
-      event.messageReply.attachments.length === 0
-    ) {
+    const reply = event.messageReply;
+
+    if (!reply || !reply.attachments || reply.attachments.length === 0) {
       return api.sendMessage(
-        `╭───「 🖼️ 𝗜𝗕𝗕 𝗨𝗣𝗟𝗢𝗔𝗗𝗘𝗥 」───⟡\n` +
-        `│\n` +
-        `│  ❌ Kisi image ka reply karo!\n` +
-        `│\n` +
-        `│  📌 Usage:\n` +
-        `│     Pehle image bhejo, phir\n` +
-        `│     us pe .ibb reply karo\n` +
-        `│\n` +
-        `│  💡 Multiple images bhi\n` +
-        `│     upload ho sakti hain!\n` +
-        `│\n` +
-        `╰───────────────────────⟡`,
-        threadID,
-        messageID
+        `╭───「 🖼️ 𝗜𝗕𝗕 𝗨𝗣𝗟𝗢𝗔𝗗𝗘𝗥 」───⟡\n│\n│  ❌ Image ka reply karo!\n│\n│  📌 Pehle image bhejo,\n│     phir .ibb reply karo\n│\n╰───────────────────────⟡`,
+        threadID
       );
     }
 
-    // Filter only actual images (not stickers/audio/video)
-    const allAttachments = event.messageReply.attachments;
-    const attachments = allAttachments.filter(a => {
-      const type = (a.type || '').toLowerCase();
-      return type === 'photo' || type === 'image' || type === 'sticker' ||
-             (!type && (a.url || a.previewUrl || a.largePreviewUrl));
-    });
-
-    if (attachments.length === 0) {
-      return api.sendMessage(
-        `╭───「 🖼️ 𝗜𝗕𝗕 𝗨𝗣𝗟𝗢𝗔𝗗𝗘𝗥 」───⟡\n│\n│  ❌ Koi valid image nahi\n│     mili reply mein!\n│\n╰───────────────────────⟡`,
-        threadID, messageID
-      );
-    }
-
-    const apiKey = 'e17a15dd6af452cbe53747c0b2b0866d';
-    const uploadUrl = 'https://api.imgbb.com/1/upload';
+    const attachments = reply.attachments;
     const total = attachments.length;
+    const apiKey = 'e17a15dd6af452cbe53747c0b2b0866d';
 
-    // Send initial progress message
-    let sentMsgID = null;
+    // Send status message
+    let statusMID = null;
     await new Promise(res =>
       api.sendMessage(
-        `╭───「 🖼️ 𝗜𝗕𝗕 𝗨𝗣𝗟𝗢𝗔𝗗𝗘𝗥 」───⟡\n│\n│  ⏳ ${total} image${total > 1 ? 's' : ''} upload\n│     ho rahi hain...\n│\n│  ▱▱▱▱▱▱▱▱▱▱  0/${total}\n│\n╰───────────────────────⟡`,
-        threadID, (err, info) => { if (!err) sentMsgID = info?.messageID; res(); }, messageID
+        `╭───「 🖼️ 𝗜𝗕𝗕 𝗨𝗣𝗟𝗢𝗔𝗗𝗘𝗥 」───⟡\n│\n│  ⏳ ${total} image upload\n│     ho rahi hai...\n│\n╰───────────────────────⟡`,
+        threadID,
+        (err, info) => { statusMID = info?.messageID; res(); },
+        messageID
       )
     );
 
-    const editMsg = (txt) => { if (sentMsgID) try { api.editMessage(txt, sentMsgID, () => {}); } catch {} };
+    const editStatus = (txt) => {
+      if (statusMID) try { api.editMessage(txt, statusMID, () => {}); } catch {}
+    };
 
-    const uploadedUrls = [];
+    const results = [];
 
     for (let i = 0; i < attachments.length; i++) {
-      const attachment = attachments[i];
+      const att = attachments[i];
 
-      // Update progress
-      const bars = '▰'.repeat(Math.round(((i) / total) * 10)) + '▱'.repeat(10 - Math.round(((i) / total) * 10));
-      editMsg(
-        `╭───「 🖼️ 𝗜𝗕𝗕 𝗨𝗣𝗟𝗢𝗔𝗗𝗘𝗥 」───⟡\n│\n│  ⏳ Uploading image ${i + 1}/${total}\n│\n│  ${bars}\n│  ${i}/${total} done\n│\n╰───────────────────────⟡`
+      // Get image URL — try all possible fields
+      const imgUrl = att.url || att.previewUrl || att.largePreviewUrl ||
+                     att.thumbnailUrl || att.preview_url || att.image_data?.uri || null;
+
+      editStatus(
+        `╭───「 🖼️ 𝗜𝗕𝗕 𝗨𝗣𝗟𝗢𝗔𝗗𝗘𝗥 」───⟡\n│\n│  ⏳ Image ${i + 1}/${total}\n│     upload ho rahi hai...\n│\n╰───────────────────────⟡`
       );
 
-      // Get best available URL for this attachment
-      const imgUrl = attachment.url || attachment.previewUrl || attachment.largePreviewUrl || attachment.thumbnailUrl || null;
-
       if (!imgUrl) {
-        uploadedUrls.push({ success: false, url: null, error: 'No URL' });
+        results.push({ n: i + 1, ok: false, url: null, err: 'URL nahi mila' });
         continue;
       }
 
-      let uploaded = false;
-      let lastError = '';
+      let done = false;
+      let errMsg = '';
 
-      // Try up to 2 times per image
-      for (let attempt = 1; attempt <= 2; attempt++) {
+      for (let attempt = 1; attempt <= 3; attempt++) {
         try {
-          const response = await axios.get(imgUrl, {
+          // Download image
+          const imgRes = await axios.get(imgUrl, {
             responseType: 'arraybuffer',
-            timeout: 15000,
-            headers: {
-              'User-Agent': 'Mozilla/5.0',
-              'Referer': 'https://www.facebook.com/'
-            }
+            timeout: 20000,
+            headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.facebook.com/' }
           });
 
-          const base64Image = Buffer.from(response.data, 'binary').toString('base64');
+          const b64 = Buffer.from(imgRes.data).toString('base64');
 
-          const formData = new URLSearchParams();
-          formData.append('key', apiKey);
-          formData.append('image', base64Image);
+          // Upload to ImgBB
+          const form = new URLSearchParams();
+          form.append('key', apiKey);
+          form.append('image', b64);
 
-          const uploadResponse = await axios.post(uploadUrl, formData, {
+          const upRes = await axios.post('https://api.imgbb.com/1/upload', form.toString(), {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            timeout: 20000
+            timeout: 25000
           });
 
-          const link = uploadResponse.data?.data?.url || uploadResponse.data?.data?.display_url;
+          const link = upRes.data?.data?.url;
           if (link) {
-            uploadedUrls.push({ success: true, url: link });
-            uploaded = true;
+            results.push({ n: i + 1, ok: true, url: link });
+            done = true;
             break;
           } else {
-            lastError = 'ImgBB returned no URL';
+            errMsg = 'ImgBB se link nahi mila';
           }
-        } catch (err) {
-          lastError = err?.response?.data?.error?.message || err.message || 'Unknown error';
-          if (attempt < 2) await new Promise(r => setTimeout(r, 1500));
+        } catch (e) {
+          errMsg = e?.response?.data?.error?.message || e.message || 'Unknown';
+          if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
         }
       }
 
-      if (!uploaded) {
-        uploadedUrls.push({ success: false, url: null, error: lastError });
-      }
+      if (!done) results.push({ n: i + 1, ok: false, url: null, err: errMsg });
 
-      // Delay between uploads to avoid rate limiting
-      if (i < attachments.length - 1) {
-        await new Promise(r => setTimeout(r, 1000));
+      // Delay between uploads
+      if (i < attachments.length - 1) await new Promise(r => setTimeout(r, 1200));
+    }
+
+    // Build final message
+    const success = results.filter(r => r.ok).length;
+    const fail = results.filter(r => !r.ok).length;
+
+    let lines = '';
+    for (const r of results) {
+      if (r.ok) {
+        lines += `│  ✅ Image ${r.n}:\n│  ${r.url}\n│\n`;
+      } else {
+        lines += `│  ❌ Image ${r.n}: ${r.err}\n│\n`;
       }
     }
 
-    // Build result message
-    const successCount = uploadedUrls.filter(u => u.success).length;
-    const failCount = uploadedUrls.filter(u => !u.success).length;
-
-    let resultLines = '';
-    uploadedUrls.forEach((item, i) => {
-      if (item.success) {
-        resultLines += `│  ✅ Image ${i + 1}:\n│  ${item.url}\n│\n`;
-      } else {
-        resultLines += `│  ❌ Image ${i + 1}: ${item.error || 'Upload fail!'}\n│\n`;
-      }
-    });
-
-    editMsg(
+    editStatus(
       `╭───「 🖼️ 𝗜𝗕𝗕 𝗨𝗣𝗟𝗢𝗔𝗗𝗘𝗥 」───⟡\n` +
       `│\n` +
-      `│  ✅ Upload Complete!\n` +
-      `│  📦 Total  : ${total}\n` +
-      `│  ✔️  Done   : ${successCount}   ❌ Fail: ${failCount}\n` +
-      `│\n` +
-      `│  ─────────────────────\n` +
-      `│\n` +
-      resultLines +
-      `│  🌐 Powered by ImgBB\n` +
+      `│  ✅ Complete!\n` +
+      `│  📦 Total : ${total}\n` +
+      `│  ✔️  Done  : ${success}  ❌ Fail: ${fail}\n` +
+      `│\n│  ─────────────────────\n│\n` +
+      lines +
+      `│  🌐 ImgBB  |  SARDAR RDX\n` +
       `╰───────────────────────⟡`
     );
   }

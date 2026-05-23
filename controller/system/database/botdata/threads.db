@@ -12,4 +12,3 @@
 {"$$indexCreated":{"fieldName":"threadId","unique":false,"sparse":false}}
 {"$$indexCreated":{"fieldName":"userId"}}
 {"$$indexCreated":{"fieldName":"threadId"}}
-{"id":"947123558188847","name":"MY BOT LAB 🧪🧪","approved":false,"banned":false,"banReason":"","settings":{"autoreact":false,"groupLock":true,"groupLockData":{"name":"MY BOT LAB","emoji":"😡","theme":"","imageFile":null},"autoseen":true,"autosent":true},"data":{},"_id":"r47M0YI4nDzD6rQA","memberCount":6}
